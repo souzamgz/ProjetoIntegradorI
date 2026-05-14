@@ -1,0 +1,36 @@
+LOG:  database system was shut down at 2017-05-12 19:43:56 COT
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+FATAL:  role "francisco" does not exist
+LOG:  database system was interrupted; last known up at 2026-05-13 19:43:09 COT
+LOG:  database system was not properly shut down; automatic recovery in progress
+LOG:  invalid record length at 0/1549240: wanted 24, got 0
+LOG:  redo is not required
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+LOG:  database system was interrupted; last known up at 2026-05-13 19:55:59 COT
+LOG:  received SIGHUP, reloading configuration files
+LOG:  database system was not properly shut down; automatic recovery in progress
+LOG:  invalid record length at 0/15492B0: wanted 24, got 0
+LOG:  redo is not required
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+LOG:  database system was interrupted; last known up at 2026-05-13 19:57:58 COT
+LOG:  database system was not properly shut down; automatic recovery in progress
+LOG:  invalid record length at 0/1549320: wanted 24, got 0
+LOG:  redo is not required
+LOG:  received SIGHUP, reloading configuration files
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  autovacuum launcher started
+LOG:  database system is ready to accept connections
+LOG:  database system was interrupted; last known up at 2026-05-13 19:58:27 COT
+LOG:  received SIGHUP, reloading configuration files
+LOG:  database system was not properly shut down; automatic recovery in progress
+LOG:  invalid record length at 0/1549390: wanted 24, got 0
+LOG:  redo is not required
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  autovacuum launcher started
+LOG:  database system is ready to accept connections

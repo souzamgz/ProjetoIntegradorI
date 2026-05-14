@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Npgsql;
 using Repository.Exceptions;
 
@@ -11,7 +12,7 @@ public class DB
     //Funcão deve rodar apenas uma vez ao inciar o game e TEM QUE DAR CERTO
     public static async Task connect()
     {
-        var connectionString = "Host=localhost:5432;Username=postgres;Password=root1234;Database=Game"; // login do banco e local doo banco na rede
+        var connectionString = "Host=127.0.0.1;Port=5432;Username=postgres;Database=postgres;Password="; // login do banco e local doo banco na rede
         dataSource = NpgsqlDataSource.Create(connectionString); // Inicializa a conexão
         
         while (!conectado)
@@ -65,5 +66,44 @@ public class DB
 
         await cmd.ExecuteNonQueryAsync();
         Console.WriteLine("[DB] Tabelas verificadas/criadas com sucesso.");
+    }
+    public static void StartDatabase()
+    {
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        // No Windows, o binário terá a extensão .exe
+        string pgctlName = OperatingSystem.IsWindows() ? "pg_ctl.exe" : "pg_ctl";
+        string pgctlPath = Path.Combine(baseDir, "bin", pgctlName);
+        string dataPath = Path.Combine(baseDir, "data");
+        string logPath = Path.Combine(baseDir, "logfile");
+
+        // Preparação específica para Linux (Debian)
+        if (OperatingSystem.IsLinux())
+        {
+            // O Windows não exige chmod 700, mas o Linux sim
+            Process.Start("chmod", $"700 \"{dataPath}\"").WaitForExit();
+        
+            // Garante as pastas técnicas que o Linux exige
+            string[] folders = { "pg_tblspc", "pg_replslot", "pg_snapshots", "pg_commit_ts" };
+            foreach (var folder in folders)
+            {
+                string path = Path.Combine(dataPath, folder);
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            }
+        }
+
+        // Limpeza de arquivos de trava (Funciona em ambos)
+        string pidFile = Path.Combine(dataPath, "postmaster.pid");
+        if (File.Exists(pidFile)) File.Delete(pidFile);
+
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = pgctlPath,
+            Arguments = $"-D \"{dataPath}\" -l \"{logPath}\" start",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WorkingDirectory = baseDir 
+        };
+
+        Process.Start(psi);
     }
 }

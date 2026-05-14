@@ -8,12 +8,13 @@ public class Rodando
 {
     public static async Task Main(string[] args)
     {
-    
-        await DB.connect();
-        await DB.Setup();
+        DB.StartDatabase();
+        //await DB.connect();
+        //await DB.Setup();
+        /*
         try
         {
-            /*
+
             Usuario usuario = new Usuario("Frann", "Francisco");
 
             await UsuarioDB.Create(usuario);
@@ -29,7 +30,7 @@ public class Rodando
 */
             //Console.WriteLine($"ID: {sala.id}\nNome: {sala.name}\nDescrição: {sala.descricao}");
             /*Sala salaN = new Sala("5°C");
-            SalaDB.Update(salaN, 1);*/
+            SalaDB.Update(salaN, 1);
             List<Sala> salas = await SalaDB.ReadAll();
             int cont = 1;
             foreach (Sala sala in salas)
@@ -67,6 +68,6 @@ public class Rodando
             throw;
         }
         
-
+        */
     }
 }

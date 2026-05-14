@@ -1,0 +1,1 @@
+/home/francisco/ProjetoIntegradorI/HackoonGameHub/pgsql/bin/postgres "-D" "./pgsql/data"
