@@ -13,7 +13,7 @@
 /HackoonGameHub/*/obj/
 
 # Godot 4+ specific ignores
-/HackoonGameHub/hackoon-game/.godot/
-/HackoonGameHub/hackoon-game/android/
+/HackoonGameHub/Game/.godot/
+/HackoonGameHub/Game/android/
 
 

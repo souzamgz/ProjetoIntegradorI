@@ -10,13 +10,13 @@ config_version=5
 
 [application]
 
-config/name="HackoonGame"
+config/name="game"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [dotnet]
 
-project/assembly_name="HackoonGame"
+project/assembly_name="game"
 
 [physics]
 
