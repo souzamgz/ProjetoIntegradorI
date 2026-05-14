@@ -8,28 +8,39 @@ public class Rodando
 {
     public static async Task Main(string[] args)
     {
-        DB.StartDatabase();
-        //await DB.connect();
-        //await DB.Setup();
-        /*
+        DB.StartDatabaseLinux();    
+        await DB.connect();
+        await DB.Setup();
         try
         {
+        Usuario usuario = new Usuario("franciscogarbi", "Francisco");
 
-            Usuario usuario = new Usuario("Frann", "Francisco");
+        if (!await UsuarioDB.UserExists(usuario.username))
+        {
+            await UsuarioDB.Create(usuario);    
+        }
+        else
+        {
+            Console.WriteLine("Usuario já Existe");
+        }
+        
+        
 
-            await UsuarioDB.Create(usuario);
+        List<Usuario> user = await UsuarioDB.Listar();
 
-            List<Usuario> user = await UsuarioDB.Listar();
+        foreach (Usuario u in user)
+        {
+            Console.WriteLine($"User {u.id}");
+            Console.WriteLine(u.name);
+            Console.WriteLine(u.username);
+        }
 
-            foreach (Usuario u in user)
-            {
-                Console.WriteLine($"User {u.id}");
-                Console.WriteLine(u.name);
-                Console.WriteLine(u.username);
-            }
-*/
+        
+        
+
+            /*
             //Console.WriteLine($"ID: {sala.id}\nNome: {sala.name}\nDescrição: {sala.descricao}");
-            /*Sala salaN = new Sala("5°C");
+            Sala salaN = new Sala("5°C");
             SalaDB.Update(salaN, 1);
             List<Sala> salas = await SalaDB.ReadAll();
             int cont = 1;
@@ -43,7 +54,7 @@ public class Rodando
                 cont++;
             }
 
-            
+            */
 
         }
         catch (DatabaseNotConnectedException e)
@@ -68,6 +79,5 @@ public class Rodando
             throw;
         }
         
-        */
     }
 }

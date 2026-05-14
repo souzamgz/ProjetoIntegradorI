@@ -9,6 +9,7 @@ public class DB
     public static NpgsqlDataSource dataSource {get; private set;}
     public static bool conectado = false;
     
+    
     //Funcão deve rodar apenas uma vez ao inciar o game e TEM QUE DAR CERTO
     public static async Task connect()
     {
@@ -67,33 +68,33 @@ public class DB
         await cmd.ExecuteNonQueryAsync();
         Console.WriteLine("[DB] Tabelas verificadas/criadas com sucesso.");
     }
-    public static void StartDatabase()
+    public static void StartDatabaseLinux()
     {
+        
+        if (Process.GetProcessesByName("postgres").Length > 0)
+        {
+            Console.WriteLine("PostgreSQL já está em execução. Pulando inicialização.");
+            return;
+        }
+        
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        // No Windows, o binário terá a extensão .exe
-        string pgctlName = OperatingSystem.IsWindows() ? "pg_ctl.exe" : "pg_ctl";
-        string pgctlPath = Path.Combine(baseDir, "bin", pgctlName);
+        string pgsqlPath = Path.Combine(baseDir, "linuxPG");
+        string pgctlPath = Path.Combine(pgsqlPath, "bin", "pg_ctl");
         string dataPath = Path.Combine(baseDir, "data");
         string logPath = Path.Combine(baseDir, "logfile");
 
-        // Preparação específica para Linux (Debian)
-        if (OperatingSystem.IsLinux())
-        {
-            // O Windows não exige chmod 700, mas o Linux sim
+        // Partes Essenciais para Linux
+            // 1. Corrige a permissão 0700 exigida pelo Postgres no Linux
             Process.Start("chmod", $"700 \"{dataPath}\"").WaitForExit();
-        
-            // Garante as pastas técnicas que o Linux exige
+
+            // 2. Garante que subpastas essenciais (que o Git pode ter ignorado) existam
             string[] folders = { "pg_tblspc", "pg_replslot", "pg_snapshots", "pg_commit_ts" };
             foreach (var folder in folders)
             {
-                string path = Path.Combine(dataPath, folder);
-                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                string fullPath = Path.Combine(dataPath, folder);
+                if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
             }
-        }
-
-        // Limpeza de arquivos de trava (Funciona em ambos)
-        string pidFile = Path.Combine(dataPath, "postmaster.pid");
-        if (File.Exists(pidFile)) File.Delete(pidFile);
+            // Partes Essenciais para Linux
 
         ProcessStartInfo psi = new ProcessStartInfo
         {
@@ -101,9 +102,57 @@ public class DB
             Arguments = $"-D \"{dataPath}\" -l \"{logPath}\" start",
             UseShellExecute = false,
             CreateNoWindow = true,
-            WorkingDirectory = baseDir 
+            WorkingDirectory = baseDir // Crucial para o binário achar as libs locais
         };
 
         Process.Start(psi);
+    }
+    public static void StartDatabaseWindows()
+    {
+        // No Windows, verificamos o processo sem a necessidade de comandos shell
+        if (Process.GetProcessesByName("postgres").Length > 0)
+        {
+            Console.WriteLine("PostgreSQL já está em execução no Windows.");
+            return;
+        }
+
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        // No seu caso, a pasta de binários do Windows (winPG)
+        string pgsqlPath = Path.Combine(baseDir, "winPG"); 
+        string pgctlPath = Path.Combine(pgsqlPath, "bin", "pg_ctl.exe");
+        string dataPath = Path.Combine(baseDir, "data");
+        string logPath = Path.Combine(baseDir, "logfile");
+
+        // No Windows, NÃO usamos chmod.
+        // O Windows gerencia permissões via ACLs, que geralmente já permitem 
+        // a execução se a pasta foi criada pelo usuário atual.
+
+        // 1. Garante que subpastas essenciais existam (Igual ao Linux)
+        string[] folders = { "pg_tblspc", "pg_replslot", "pg_snapshots", "pg_commit_ts" };
+        foreach (var folder in folders)
+        {
+            string fullPath = Path.Combine(dataPath, folder);
+            if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
+        }
+
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = pgctlPath,
+            // O comando de inicialização é idêntico
+            Arguments = $"-D \"{dataPath}\" -l \"{logPath}\" start",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            WorkingDirectory = Path.Combine(pgsqlPath, "bin")
+        };
+
+        try 
+        {
+            Process.Start(psi);
+            Console.WriteLine("Servidor Windows iniciado.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Erro ao iniciar no Windows: " + ex.Message);
+        }
     }
 }

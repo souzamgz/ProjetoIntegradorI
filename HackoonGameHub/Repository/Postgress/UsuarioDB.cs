@@ -1,3 +1,5 @@
+using System.ComponentModel.Design.Serialization;
+using System.Security.Cryptography;
 using Models;
 using Repository.Exceptions;
 
@@ -110,5 +112,20 @@ public class UsuarioDB
             return u;
         }
         throw new ResourceNotFoundException("Nenhum usuario com este nome");
+    }
+
+    public static async Task<bool> UserExists(string username)
+    {
+        DB.testConnection();
+        
+        await using var cmd =
+        DB.dataSource.CreateCommand("Select id from usuarios where username = $1");
+        cmd.Parameters.AddWithValue(username);
+        await using var reader = await cmd.ExecuteReaderAsync();
+        if (reader.HasRows)
+        {
+            return true;
+        }
+        return false;
     }
 }
