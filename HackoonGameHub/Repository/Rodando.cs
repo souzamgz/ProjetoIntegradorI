@@ -8,7 +8,7 @@ public class Rodando
 {
     public static async Task Main(string[] args)
     {
-        DB.StartDatabaseWindows();    
+        DB.StartDatabaseLinux();    
         await DB.connect();
         await DB.Setup();
         try
