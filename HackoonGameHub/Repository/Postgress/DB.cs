@@ -9,30 +9,43 @@ public class DB
     public static NpgsqlDataSource dataSource {get; private set;}
     public static bool conectado = false;
     
-    
     //Funcão deve rodar apenas uma vez ao inciar o game e TEM QUE DAR CERTO
-    public static async Task connect()
+    public static async Task Connect()
     {
-        var connectionString = "Host=127.0.0.1;Port=5432;Username=postgres;Database=postgres;Password=root1234"; // login do banco e local doo banco na rede
-        dataSource = NpgsqlDataSource.Create(connectionString); // Inicializa a conexão
+        if (conectado)
+        {
+            return;
+        }
+        //Inicia Database Postgres Portable (Somente Windows)
+        StartDatabase();
         
+        var connectionString = "Host=127.0.0.1;Port=5432;Username=postgres;Database=postgres;Password="; // login do banco e local doo banco na rede
+        dataSource = NpgsqlDataSource.Create(connectionString); // Inicializa a conexão
+
+        int tentativas = 0;
         while (!conectado)
         {
             try
             {
                 //tenta conectar
                 await using var connection = await dataSource.OpenConnectionAsync();
-                Console.WriteLine("Conectado: " + connection);
+                //Cria Tabelas
+                await Setup();
                 conectado = true;
             }
             catch (Exception e)
             {
+                tentativas++;
+                if (tentativas == 10)
+                {
+                    throw new Exception("O servidor Postgres está ativo, mas recusa conexões. Verifique o logfile.");
+                }
                 //se der erro vai tentando a cada 1 Segundo
-                Console.WriteLine("Erro ao conectar: " + e);
                 await Task.Delay(1000);
             }
         }
     }
+    //Testa se conexão Existe
     public  static void testConnection()
     {
         if (!conectado || dataSource == null)
@@ -40,7 +53,7 @@ public class DB
             throw new DatabaseNotConnectedException();
         }   
     }
-    public static async Task Setup()
+    private static async Task Setup()
     {
         await using var cmd = dataSource.CreateCommand(@"
         
@@ -66,14 +79,12 @@ public class DB
     ");
 
         await cmd.ExecuteNonQueryAsync();
-        Console.WriteLine("[DB] Tabelas verificadas/criadas com sucesso.");
     }
-    public static void StartDatabase()
+    private static void StartDatabase()
     {
-        // No Windows, verificamos o processo sem a necessidade de comandos shell
+        //Verifica Se ja tem Processo com Este Nome
         if (Process.GetProcessesByName("postgres").Length > 0)
         {
-            Console.WriteLine("PostgreSQL já está em execução no Windows.");
             return;
         }
 
@@ -88,7 +99,6 @@ public class DB
         
         if (!File.Exists(Path.Combine(dataPath, "PG_VERSION")))
         {
-            Console.WriteLine("Banco de dados não detectado. Inicializando...");
             InitializeDatabase(binPath, dataPath);
         }
         
@@ -102,7 +112,6 @@ public class DB
         ProcessStartInfo psi = new ProcessStartInfo
         {
             FileName = pgctlPath,
-            // O comando de inicialização é idêntico
             Arguments = $"-D \"{dataPath}\" -l \"{logPath}\" start",
             UseShellExecute = false,
             CreateNoWindow = true,
@@ -112,23 +121,17 @@ public class DB
         try 
         {
             Process.Start(psi);
-            Console.WriteLine("Servidor Windows iniciado.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao iniciar no Windows: " + ex.Message);
+            throw new Exception($"Erro ao iniciar Banco De dados: {ex.Message}");
         }
     }
-    public static void InitializeDatabase(string binPath, string dataPath)
+    private static void InitializeDatabase(string binPath, string dataPath)
     {
-        // Para não pedir senha no terminal (o que travaria o app), 
-        // usamos o método de autenticação 'trust' temporariamente ou um arquivo de senha.
-        // Aqui usamos '-A trust' para facilitar o primeiro acesso, depois você altera.
-    
         ProcessStartInfo initPsi = new ProcessStartInfo
         {
             FileName = Path.Combine(binPath, "initdb.exe"),
-            // -A trust permite conectar sem senha inicialmente para configurar o banco
             Arguments = $"-D \"{dataPath}\" -U postgres --encoding=UTF8 --locale=Portuguese_Brazil -A trust",
             UseShellExecute = false,
             CreateNoWindow = true,
@@ -138,10 +141,10 @@ public class DB
         using (Process proc = Process.Start(initPsi))
         {
             proc.WaitForExit();
-            if (proc.ExitCode == 0)
-                Console.WriteLine("InitDB concluído com sucesso.");
-            else
+            if (proc.ExitCode != 0)
+            {
                 throw new Exception($"InitDB falhou com código {proc.ExitCode}");
+            }
         }
     }
 }

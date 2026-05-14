@@ -8,12 +8,10 @@ public class Rodando
 {
     public static async Task Main(string[] args)
     {
-        DB.StartDatabase();    
-        await DB.connect();
-        await DB.Setup();   
+        await DB.Connect();
         try
         {
-        Usuario usuario = new Usuario("franciscogarbi", "Francisco");
+        Usuario usuario = new Usuario("francisco", "Francisco");
 
         if (!await UsuarioDB.UserExists(usuario.username))
         {
