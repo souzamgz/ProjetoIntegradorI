@@ -10,7 +10,7 @@ public class Rodando
     {
         DB.StartDatabaseLinux();    
         await DB.connect();
-        await DB.Setup();
+        await DB.Setup();   
         try
         {
         Usuario usuario = new Usuario("franciscogarbi", "Francisco");
