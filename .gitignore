@@ -1,6 +1,14 @@
+# Pastas de ferramentas e IDE
+.idea/
+.vs/
 /HackoonGameHub/bin/
 /HackoonGameHub/obj/
 /HackoonGameHub/packages/
 /HackoonGameHub/riderModule.iml
 /HackoonGameHub/_ReSharper.Caches/
-/HackoonGameHub/Repository/bin/
+
+
+# Ignorar pastas de compilação do C# de forma recursiva
+**/bin/Debug/
+**/bin/Release/
+**/obj/
