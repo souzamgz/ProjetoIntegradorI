@@ -9,6 +9,10 @@
 
 
 # Ignorar pastas de compilação do C# de forma recursiva
-**/bin/Debug/
-**/bin/Release/
+[Bb]in/
+[Oo]bj/
 **/obj/
+
+#Não Ignorar os binarios do postgres
+!**/pgsql/bin/
+!**/pgsql/bin/**
