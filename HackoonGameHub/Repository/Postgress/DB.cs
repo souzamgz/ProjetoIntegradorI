@@ -68,46 +68,7 @@ public class DB
         await cmd.ExecuteNonQueryAsync();
         Console.WriteLine("[DB] Tabelas verificadas/criadas com sucesso.");
     }
-    public static void StartDatabaseLinux()
-    {
-        
-        if (Process.GetProcessesByName("postgres").Length > 0)
-        {
-            Console.WriteLine("PostgreSQL já está em execução. Pulando inicialização.");
-            return;
-        }
-        
-        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        string pgsqlPath = Path.Combine(baseDir, "linuxPG");
-        string pgctlPath = Path.Combine(pgsqlPath, "bin", "pg_ctl");
-        string dataPath = Path.Combine(baseDir, "data");
-        string logPath = Path.Combine(baseDir, "logfile");
-
-        // Partes Essenciais para Linux
-            // 1. Corrige a permissão 0700 exigida pelo Postgres no Linux
-            Process.Start("chmod", $"700 \"{dataPath}\"").WaitForExit();
-
-            // 2. Garante que subpastas essenciais (que o Git pode ter ignorado) existam
-            string[] folders = { "pg_tblspc", "pg_replslot", "pg_snapshots", "pg_commit_ts" };
-            foreach (var folder in folders)
-            {
-                string fullPath = Path.Combine(dataPath, folder);
-                if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
-            }
-            // Partes Essenciais para Linux
-
-        ProcessStartInfo psi = new ProcessStartInfo
-        {
-            FileName = pgctlPath,
-            Arguments = $"-D \"{dataPath}\" -l \"{logPath}\" start",
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            WorkingDirectory = baseDir // Crucial para o binário achar as libs locais
-        };
-
-        Process.Start(psi);
-    }
-    public static void StartDatabaseWindows()
+    public static void StartDatabase()
     {
         // No Windows, verificamos o processo sem a necessidade de comandos shell
         if (Process.GetProcessesByName("postgres").Length > 0)
@@ -118,11 +79,11 @@ public class DB
 
         string baseDir = AppDomain.CurrentDomain.BaseDirectory;
         // No seu caso, a pasta de binários do Windows (winPG)
-        string pgsqlPath = Path.Combine(baseDir, "winPG"); 
+        string pgsqlPath = Path.Combine(baseDir, "pgsql"); 
         string pgctlPath = Path.Combine(pgsqlPath, "bin", "pg_ctl.exe");
-        string dataPath = Path.Combine(baseDir, "data");
-        string logPath = Path.Combine(baseDir, "logfile");
-        string sharePath = Path.Combine(baseDir, "share", "postgresql");
+        string dataPath = Path.Combine(pgsqlPath, "data");
+        string logPath = Path.Combine(pgsqlPath, "logfile");
+        string sharePath = Path.Combine(pgsqlPath, "share");
         
         string[] folders = { "pg_tblspc", "pg_replslot", "pg_snapshots", "pg_commit_ts" };
         foreach (var folder in folders)
