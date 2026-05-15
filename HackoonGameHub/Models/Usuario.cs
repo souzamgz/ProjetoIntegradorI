@@ -13,12 +13,42 @@ public class Usuario
     public int? id_sala {get;set;}
     public string password{get;set;}
     
+    public string turma { get; set; }
+
+    public int points { get; set; } = 0;
+
+    public int level { get; set; } = 1;
+
+    public int stars { get; set; } = 0;
     public DateTime createdAt{get;set;}
 
     public Usuario(string username, string name)
     {
-        this.username = username;
-        this.name = name;
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            throw new Exception("Nick obrigatório");
+        }
+
+        if (username.Length < 3) 
+        {
+            throw new Exception("Nick muito curto");    /*Validação básica de Tamanho e filtro de caractéres especiais dos Nicks
+                                                          para ajudar na interface e tirar caractéres impróprios */
+        }
+
+        if (username.Length > 12)
+        {
+            throw new Exception("Nick muito longo");
+        }
+
+        if (!username.All(c => char.IsLetterOrDigit(c) || c == ' '))
+        {
+            throw new Exception("Nick inválido");
+        }
+        
+        this.username = this.username =
+            char.ToUpper(username.Trim()[0]) +   //Deixar Nicks padronizados e bonitinhos (publico alvo mais jovem)
+            username.Trim().Substring(1).ToLower();
+        this.name = name.Trim();
         createdAt = DateTime.Now;
     }
     public Usuario(int id, string username, string name, DateTime createdAt)
