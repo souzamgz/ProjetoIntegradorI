@@ -75,6 +75,7 @@ public class DB
             turma varchar(50),
             points INTEGER DEFAULT 0,
             level INTEGER DEFAULT 1,
+            xp INTEGER DEFAULT 0,
             stars INTEGER DEFAULT 0,
 	        id_sala INTEGER references salas(id) on delete set null,
 	        password varchar(255),

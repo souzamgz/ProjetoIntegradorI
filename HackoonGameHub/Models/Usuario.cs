@@ -16,9 +16,10 @@ public class Usuario
     public string turma { get; set; }
 
     public int points { get; set; } = 0;
-
+   
     public int level { get; set; } = 1;
-
+    public int xp { get; set; } = 0;
+    
     public int stars { get; set; } = 0;
     public DateTime createdAt{get;set;}
 
@@ -59,4 +60,32 @@ public class Usuario
         this.createdAt = createdAt;
     }
     
+    private int GetXpToNextLevel()
+    {
+        return 100 + (level * 25);
+    }
+    public void AddXp(int amount)
+    {
+        if (level >= 99)
+        {
+            level = 99;
+            xp = 0;
+            return;
+        }
+
+        xp += amount;
+
+        while (xp >= GetXpToNextLevel())   //Balanceando o escalonamento do XP
+        {
+            xp -= GetXpToNextLevel();
+            level++;
+
+            if (level >= 99)
+            {
+                level = 99;
+                xp = 0;
+                break;
+            }
+        }
+    }
 }
